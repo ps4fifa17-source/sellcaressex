@@ -23,15 +23,36 @@ export default function TownPage() {
 
   if (!town) return <Navigate to="/" replace />;
 
-  function handleLeadSubmit(lead) {
-    // TODO: send this to your backend / CRM / email.
-    // lead.photoFiles contains real browser File objects (front/dashboard/damage,
-    // each null if not provided) — these need uploading somewhere (e.g. Vercel Blob,
-    // Cloudinary, or attached to an email via a serverless function) once you wire
-    // this up for real. A plain JSON POST (e.g. straight to Formspree) won't carry
-    // files — you'd send those as FormData instead, or upload them separately and
-    // include the resulting URLs in the JSON payload.
-    console.log("New lead:", lead);
+  async function handleLeadSubmit(lead) {
+    // Convert the real File objects to base64 so they can travel as JSON
+    // to the serverless function, which attaches them to the lead email.
+    const photos = {};
+    for (const type of ["front", "dashboard", "damage"]) {
+      const file = lead.photoFiles?.[type];
+      photos[type] = file ? await fileToBase64(file) : null;
+    }
+
+    const payload = { ...lead, photos };
+    delete payload.photoFiles; // File objects aren't JSON-serialisable anyway
+
+    const response = await fetch("/api/lead", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to send lead");
+    }
+  }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 
   return (

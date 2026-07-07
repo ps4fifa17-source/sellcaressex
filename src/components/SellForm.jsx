@@ -171,22 +171,32 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
 
   // ---- CONTACT ----
   const contactValid = name.trim().length > 1 && phone.replace(/\D/g, "").length >= 7;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  function submitLead() {
+  async function submitLead() {
     const lead = {
       town: townName,
       make: selectedMake,
       model: selectedModel,
       year: selectedYear,
       mileage: mileage || null,
-      photoFiles, // real File objects — see note in TownPage.jsx about uploading these
+      photoFiles, // real File objects — converted to base64 in TownPage.jsx before sending
       condition: conditionChips,
       urgency: selectedUrgency,
       name,
       phone,
     };
-    onLeadSubmit?.(lead);
-    setStepId("confirm");
+    setIsSubmitting(true);
+    setSubmitError("");
+    try {
+      await onLeadSubmit?.(lead);
+      setStepId("confirm");
+    } catch (err) {
+      setSubmitError("Something went wrong sending that — please try again, or call us directly.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   const idx = steps.indexOf(stepId);
@@ -450,9 +460,10 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
                 className="font-mono bg-paper border border-ink-soft w-full p-3.5 focus:outline-none focus:border-green"
               />
             </div>
-            <button disabled={!contactValid} onClick={submitLead} className="btn-primary mt-6 disabled:opacity-40 disabled:cursor-not-allowed">
-              Get my price
+            <button disabled={!contactValid || isSubmitting} onClick={submitLead} className="btn-primary mt-6 disabled:opacity-40 disabled:cursor-not-allowed">
+              {isSubmitting ? "Sending..." : "Get my price"}
             </button>
+            {submitError && <p className="text-sm text-[#96402B] mt-3">{submitError}</p>}
             <p className="font-mono text-xs text-ink-soft mt-3">NO HARD FEELINGS, NO OBLIGATION IF THE PRICE ISN'T RIGHT FOR YOU.</p>
           </div>
         )}
