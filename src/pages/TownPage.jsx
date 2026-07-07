@@ -25,8 +25,12 @@ export default function TownPage() {
 
   function handleLeadSubmit(lead) {
     // TODO: send this to your backend / CRM / email.
-    // For now it just logs — wire this up to an API route or a service like
-    // Formspree / Airtable / a simple serverless function on Vercel.
+    // lead.photoFiles contains real browser File objects (front/dashboard/damage,
+    // each null if not provided) — these need uploading somewhere (e.g. Vercel Blob,
+    // Cloudinary, or attached to an email via a serverless function) once you wire
+    // this up for real. A plain JSON POST (e.g. straight to Formspree) won't carry
+    // files — you'd send those as FormData instead, or upload them separately and
+    // include the resulting URLs in the JSON payload.
     console.log("New lead:", lead);
   }
 

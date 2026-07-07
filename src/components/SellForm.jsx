@@ -29,7 +29,9 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
   const [selectedYear, setSelectedYear] = useState(null);
   const [showOlderYears, setShowOlderYears] = useState(false);
 
-  const [photoState, setPhotoState] = useState({ front: false, dashboard: false, damage: false });
+  const [photoState, setPhotoState] = useState({ front: null, dashboard: null, damage: null });
+  const [photoFiles, setPhotoFiles] = useState({ front: null, dashboard: null, damage: null });
+  const fileInputRefs = useRef({});
   const [mileage, setMileage] = useState("");
 
   const [conditionChips, setConditionChips] = useState({});
@@ -112,8 +114,21 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
   }
 
   // ---- PHOTOS ----
-  function togglePhoto(type) {
-    setPhotoState((s) => ({ ...s, [type]: true }));
+  function openPicker(type) {
+    fileInputRefs.current[type]?.click();
+  }
+  function handlePhotoChange(type, e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+    setPhotoState((s) => ({ ...s, [type]: previewUrl }));
+    setPhotoFiles((s) => ({ ...s, [type]: file }));
+  }
+  function removePhoto(type, e) {
+    e.stopPropagation();
+    setPhotoState((s) => ({ ...s, [type]: null }));
+    setPhotoFiles((s) => ({ ...s, [type]: null }));
+    if (fileInputRefs.current[type]) fileInputRefs.current[type].value = "";
   }
   function finishPhotos() {
     showNote("That's enough for our valuer to start with.");
@@ -164,7 +179,7 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
       model: selectedModel,
       year: selectedYear,
       mileage: mileage || null,
-      photos: photoState,
+      photoFiles, // real File objects — see note in TownPage.jsx about uploading these
       condition: conditionChips,
       urgency: selectedUrgency,
       name,
@@ -305,12 +320,36 @@ export default function SellForm({ townName, onHeadlineChange, onLeadSubmit }) {
             <p className="text-ink-soft text-sm -mt-3 mb-4">Totally optional — add any you have, or skip straight past.</p>
             <div className="grid grid-cols-3 gap-3">
               {["front", "dashboard", "damage"].map((type) => (
-                <div key={type} onClick={() => togglePhoto(type)} className="cursor-pointer">
-                  <div className={`aspect-square border-[1.5px] flex items-center justify-center transition ${photoState[type] ? "border-green bg-green/5 animate-chip-pop" : "border-dashed border-ink-soft bg-paper hover:border-green"}`}>
-                    <span className="font-mono text-[0.65rem] text-ink-soft text-center px-1">
-                      {photoState[type] ? "ADDED ✓" : `${type.toUpperCase()} (OPTIONAL)`}
-                    </span>
+                <div key={type} className="relative">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    ref={(el) => (fileInputRefs.current[type] = el)}
+                    onChange={(e) => handlePhotoChange(type, e)}
+                    className="hidden"
+                  />
+                  <div
+                    onClick={() => openPicker(type)}
+                    className={`aspect-square border-[1.5px] flex items-center justify-center transition cursor-pointer overflow-hidden ${photoState[type] ? "border-green bg-green/5" : "border-dashed border-ink-soft bg-paper hover:border-green"}`}
+                  >
+                    {photoState[type] ? (
+                      <img src={photoState[type]} alt={type} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="font-mono text-[0.65rem] text-ink-soft text-center px-1">
+                        {type.toUpperCase()} (OPTIONAL)
+                      </span>
+                    )}
                   </div>
+                  {photoState[type] && (
+                    <button
+                      onClick={(e) => removePhoto(type, e)}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-ink text-paper-raised text-xs rounded-full flex items-center justify-center"
+                      aria-label={`Remove ${type} photo`}
+                    >
+                      ✕
+                    </button>
+                  )}
                 </div>
               ))}
             </div>
