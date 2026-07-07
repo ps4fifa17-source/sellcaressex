@@ -27,7 +27,7 @@ export default function Hub() {
           className="absolute inset-0 opacity-[0.07] pointer-events-none"
           style={{ backgroundImage: "radial-gradient(circle at 20% 20%, #E6BC4F, transparent 45%), radial-gradient(circle at 80% 80%, #E6BC4F, transparent 45%)" }}
         />
-        <p className="font-mono text-xs tracking-widest text-gold-bright mb-4 relative">SELLCARESSEX.CO</p>
+        <p className="font-mono text-xs tracking-widest text-gold-bright mb-4 relative">SELLCARESSEX.CO.UK</p>
         <h1 className="font-display uppercase font-extrabold text-4xl md:text-6xl leading-none max-w-3xl mx-auto relative">
           Sell your car <span className="text-gold-bright">locally</span>, anywhere in Essex
         </h1>
@@ -117,7 +117,7 @@ export default function Hub() {
       </div>
 
       <footer className="border-t border-line py-8 text-center font-mono text-xs text-ink-soft">
-        SELLCARESSEX.CO — SERVING TOWNS ACROSS ESSEX
+        SELLCARESSEX.CO.UK — SERVING TOWNS ACROSS ESSEX
       </footer>
     </div>
   );
