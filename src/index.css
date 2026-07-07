@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body { background: #EAE6DA; }
+body { font-family: 'Fraunces', serif; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px) scale(0.995); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.animate-fade-in { animation: fadeIn 0.3s ease; }
+
+@keyframes chipPop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+.animate-chip-pop { animation: chipPop 0.25s ease; }
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.animate-pulse-dot { animation: pulseDot 2.2s infinite; }
+
+@keyframes noteIn {
+  from { opacity: 0; transform: rotate(-2deg) translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: rotate(-2deg) translateY(0) scale(1); }
+}
+.animate-note-in { animation: noteIn 0.35s ease; }
+
+@layer components {
+  .btn-primary {
+    @apply bg-green text-paper-raised font-display uppercase tracking-wide font-bold text-base py-3.5 w-full transition;
+  }
+  .btn-primary:hover:not(:disabled) { @apply bg-green-soft; }
+  .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+}
+
