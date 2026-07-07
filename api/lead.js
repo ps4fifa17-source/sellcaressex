@@ -52,15 +52,23 @@ export default async function handler(req, res) {
       </p>
     `;
 
-    await resend.emails.send({
+    const { data, error } = await resend.emails.send({
       from: process.env.LEAD_FROM_EMAIL || "Sell Car Essex <onboarding@resend.dev>",
-      to: process.env.DEALER_EMAIL,
+      to: (process.env.DEALER_EMAIL || "").split(",").map((e) => e.trim()).filter(Boolean),
       subject: `New lead: ${lead.make || "Unknown"} ${lead.model || ""} — ${lead.town || "Essex"}`,
       html,
       attachments,
     });
 
-    res.status(200).json({ ok: true });
+    if (error) {
+      // The Resend SDK does NOT throw on API-level failures (e.g. unverified
+      // domain, sandbox restrictions) — it returns them here instead. Without
+      // this check, a failed send looks identical to a successful one.
+      console.error("Resend rejected the email:", error);
+      return res.status(500).json({ error: error.message || "Resend rejected the email" });
+    }
+
+    res.status(200).json({ ok: true, id: data?.id });
   } catch (err) {
     console.error("Lead email failed:", err);
     res.status(500).json({ error: "Failed to send lead email" });
