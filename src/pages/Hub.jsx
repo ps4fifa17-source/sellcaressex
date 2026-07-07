@@ -1,8 +1,13 @@
 import { Link } from "react-router-dom";
 import { useEffect } from "react";
 import { towns } from "../data/towns";
+import { captureSource } from "../utils/source";
 
 export default function Hub() {
+  useEffect(() => {
+    captureSource();
+  }, []);
+
   useEffect(() => {
     document.title = "Sell Car Essex | Sell Your Car Locally, No Obligation";
     let meta = document.querySelector('meta[name="description"]');

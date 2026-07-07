@@ -52,6 +52,7 @@ export default async function handler(req, res) {
       phone: lead.phone,
       telHref,
       photoCount: attachments.length,
+      source: lead.source || "Direct / not tagged",
     });
 
     const { data, error } = await resend.emails.send({
@@ -97,7 +98,7 @@ const PAPER = "#EAE6DA";
 const PAPER_RAISED = "#F6F3EA";
 const LINE = "#CBC4AF";
 
-function buildEmailHtml({ town, make, model, year, mileage, conditionFlags, urgencyLabel, name, phone, telHref, photoCount }) {
+function buildEmailHtml({ town, make, model, year, mileage, conditionFlags, urgencyLabel, name, phone, telHref, photoCount, source }) {
   const row = (label, value) => `
     <tr>
       <td style="padding:9px 0; border-bottom:1px solid ${LINE}; font-family:Georgia,'Times New Roman',serif; font-size:13px; color:${INK_SOFT}; width:150px; vertical-align:top;">${escapeHtml(label)}</td>
@@ -146,6 +147,7 @@ function buildEmailHtml({ town, make, model, year, mileage, conditionFlags, urge
                 ${row("Name", escapeHtml(name || ""))}
                 ${row("Mobile", escapeHtml(phone || ""))}
                 ${row("Photos", photoCount ? `${photoCount} attached to this email` : `<span style="color:${INK_SOFT};">None provided</span>`)}
+                ${row("Source", escapeHtml(source || "Direct / not tagged"))}
               </table>
             </td>
           </tr>

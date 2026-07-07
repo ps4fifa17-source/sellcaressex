@@ -1,12 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, Navigate, Link } from "react-router-dom";
 import { getTownBySlug } from "../data/towns";
+import { captureSource, getStoredSource } from "../utils/source";
 import SellForm from "../components/SellForm";
 
 export default function TownPage() {
   const { slug } = useParams();
   const town = getTownBySlug(slug);
   const [headline, setHeadline] = useState(null);
+
+  useEffect(() => {
+    captureSource();
+  }, []);
 
   useEffect(() => {
     if (!town) return;
@@ -32,7 +37,7 @@ export default function TownPage() {
       photos[type] = file ? await fileToBase64(file) : null;
     }
 
-    const payload = { ...lead, photos };
+    const payload = { ...lead, photos, source: getStoredSource() };
     delete payload.photoFiles; // File objects aren't JSON-serialisable anyway
 
     const response = await fetch("/api/lead", {
